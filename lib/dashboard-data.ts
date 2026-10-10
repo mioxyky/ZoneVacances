@@ -4,6 +4,8 @@ import { env } from "@/lib/env";
 import { getDictionary } from "@/lib/i18n";
 import type {
   AppLocale,
+  CalendarPublicHolidayData,
+  CalendarVacationData,
   CountdownItem,
   CountdownStatusTone,
   CountryDefinition,
@@ -28,14 +30,12 @@ type FrancePublicHolidayApiResponse = Record<string, string>;
 type FranceSchoolZoneCode = "FR-ZA" | "FR-ZB" | "FR-ZC";
 
 const ZONE_COLOR_PALETTE = [
-  { color: "#3b82f6", glow: "rgba(59, 130, 246, 0.28)" },
-  { color: "#ef4444", glow: "rgba(239, 68, 68, 0.28)" },
-  { color: "#f59e0b", glow: "rgba(245, 158, 11, 0.28)" },
-  { color: "#10b981", glow: "rgba(16, 185, 129, 0.28)" },
-  { color: "#8b5cf6", glow: "rgba(139, 92, 246, 0.28)" },
-  { color: "#06b6d4", glow: "rgba(6, 182, 212, 0.28)" },
-  { color: "#ec4899", glow: "rgba(236, 72, 153, 0.28)" },
-  { color: "#84cc16", glow: "rgba(132, 204, 22, 0.28)" },
+  { color: "var(--zone-fr-a)", glow: "var(--zone-fr-a-glow)" },
+  { color: "var(--zone-fr-b)", glow: "var(--zone-fr-b-glow)" },
+  { color: "var(--zone-fr-c)", glow: "var(--zone-fr-c-glow)" },
+  { color: "var(--community-be-fr)", glow: "var(--community-be-fr-glow)" },
+  { color: "var(--community-be-nl)", glow: "var(--community-be-nl-glow)" },
+  { color: "var(--community-be-de)", glow: "var(--community-be-de-glow)" },
 ];
 
 const API_LANGUAGE_ALLOWLIST = new Set(["EN", "FR", "PL"]);
@@ -210,30 +210,30 @@ const COUNTRY_ZONE_OVERRIDES: Record<
 > = {
   BE: {
     "BE-DE": {
-      color: "#eab308",
-      glow: "rgba(234, 179, 8, 0.24)",
+      color: "var(--community-be-de)",
+      glow: "var(--community-be-de-glow)",
     },
     "BE-FR": {
-      color: "#14b8a6",
-      glow: "rgba(20, 184, 166, 0.24)",
+      color: "var(--community-be-fr)",
+      glow: "var(--community-be-fr-glow)",
     },
     "BE-NL": {
-      color: "#38bdf8",
-      glow: "rgba(56, 189, 248, 0.24)",
+      color: "var(--community-be-nl)",
+      glow: "var(--community-be-nl-glow)",
     },
   },
   FR: {
     "FR-ZA": {
-      color: "#ef4444",
-      glow: "rgba(239, 68, 68, 0.28)",
+      color: "var(--zone-fr-a)",
+      glow: "var(--zone-fr-a-glow)",
     },
     "FR-ZB": {
-      color: "#3b82f6",
-      glow: "rgba(59, 130, 246, 0.28)",
+      color: "var(--zone-fr-b)",
+      glow: "var(--zone-fr-b-glow)",
     },
     "FR-ZC": {
-      color: "#f59e0b",
-      glow: "rgba(245, 158, 11, 0.28)",
+      color: "var(--zone-fr-c)",
+      glow: "var(--zone-fr-c-glow)",
     },
   },
 };
@@ -248,8 +248,8 @@ function buildApiWindow(timeZone: string) {
   const now = DateTime.now().setZone(timeZone);
 
   return {
-    validFrom: now.minus({ days: 45 }).toISODate() ?? "",
-    validTo: now.plus({ months: 18 }).toISODate() ?? "",
+    validFrom: now.minus({ years: 2 }).startOf("year").toISODate() ?? "",
+    validTo: now.plus({ years: 2 }).endOf("year").toISODate() ?? "",
   };
 }
 
@@ -381,26 +381,47 @@ async function fetchOpenHolidays(
   endpoint: string,
   params: Record<string, string>,
 ) {
-  const url = new URL(`${env.openHolidaysBaseUrl}/${endpoint}`);
+  const start = DateTime.fromISO(params.validFrom, { zone: "utc" }).startOf("day");
+  const end = DateTime.fromISO(params.validTo, { zone: "utc" }).startOf("day");
+  const requestWindows: Array<{ validFrom: string; validTo: string }> = [];
+  let windowStart = start;
 
-  Object.entries(params).forEach(([key, value]) => {
-    url.searchParams.set(key, value);
-  });
+  while (windowStart.isValid && end.isValid && windowStart <= end) {
+    const windowEnd = DateTime.min(windowStart.plus({ years: 3 }).minus({ days: 1 }), end);
+    const validFrom = windowStart.toISODate();
+    const validTo = windowEnd.toISODate();
 
-  const response = await fetch(url.toString(), {
-    headers: {
-      Accept: "application/json",
-    },
-    next: {
-      revalidate: 60 * 60 * 6,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`OpenHolidays ${endpoint} returned ${response.status}`);
+    if (!validFrom || !validTo) break;
+    requestWindows.push({ validFrom, validTo });
+    windowStart = windowEnd.plus({ days: 1 });
   }
 
-  return (await response.json()) as HolidayApiEntry[];
+  const results = await Promise.all(
+    requestWindows.map(async ({ validFrom, validTo }) => {
+      const url = new URL(`${env.openHolidaysBaseUrl.replace(/\/+$/, "")}/${endpoint}`);
+
+      Object.entries({ ...params, validFrom, validTo }).forEach(([key, value]) => {
+        url.searchParams.set(key, value);
+      });
+
+      const response = await fetch(url.toString(), {
+        headers: {
+          Accept: "application/json",
+        },
+        next: {
+          revalidate: 60 * 60 * 6,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`OpenHolidays ${endpoint} returned ${response.status}`);
+      }
+
+      return (await response.json()) as HolidayApiEntry[];
+    }),
+  );
+
+  return [...new Map(results.flat().map((entry) => [entry.id, entry])).values()];
 }
 
 async function fetchFranceOfficialSchoolHolidays() {
@@ -431,7 +452,7 @@ async function fetchFranceOfficialSchoolHolidays() {
 
 async function fetchFranceOfficialPublicHolidays() {
   const now = DateTime.now().setZone("Europe/Paris");
-  const years = [now.year, now.plus({ years: 1 }).year];
+  const years = Array.from({ length: 5 }, (_, offset) => now.year - 2 + offset);
   const responses = await Promise.all(
     years.map(async (year) => {
       const response = await fetch(
@@ -900,6 +921,52 @@ function buildRemainingVacations(
     .sort((first, second) => first.startDate.localeCompare(second.startDate));
 }
 
+function buildCalendarVacations(
+  country: CountryDefinition,
+  entries: HolidayApiEntry[],
+  locale: AppLocale,
+): CalendarVacationData[] {
+  const zones = buildZoneConfigs(country, entries, locale);
+  const sortedEntries = sortByStartDate(entries);
+
+  return zones
+    .flatMap((zone) =>
+      sortedEntries
+        .filter((entry) => zoneMatchesEntry(entry, zone))
+        .map((entry) => ({
+          id: `${zone.code}-${entry.id}`,
+          name: getLocalizedText(entry.name, locale),
+          startDate: entry.startDate,
+          endDate: entry.endDate,
+          zoneId: zone.code,
+          zoneLabel: zone.label,
+          zoneShortLabel: zone.shortLabel,
+          color: zone.color,
+        })),
+    )
+    .sort((first, second) => first.startDate.localeCompare(second.startDate));
+}
+
+function buildCalendarPublicHolidays(
+  entries: HolidayApiEntry[],
+  country: CountryDefinition,
+  locale: AppLocale,
+): CalendarPublicHolidayData[] {
+  const labels = getDictionary(locale).calendar;
+  const countryLabel = country.isoCode === "FR" ? labels.france : labels.belgium;
+
+  return sortByStartDate(entries)
+    .filter((entry) => entry.nationwide ?? true)
+    .map((entry) => ({
+      id: `${country.isoCode}-${entry.id}`,
+      name: getLocalizedText(entry.name, locale),
+      startDate: entry.startDate,
+      endDate: entry.endDate,
+      countryCode: country.isoCode,
+      countryLabel,
+    }));
+}
+
 function buildPublicHolidayCards(
   entries: HolidayApiEntry[],
   country: CountryDefinition,
@@ -1059,6 +1126,8 @@ export async function getCountryPageData(
     country,
     generatedAt: new Date().toISOString(),
     nextVacations,
+    calendarVacations: buildCalendarVacations(country, zoneSchoolHolidays, locale),
+    calendarPublicHolidays: buildCalendarPublicHolidays(openHolidayPublicHolidays, country, locale),
     remainingVacations: buildRemainingVacations(
       country,
       zoneSchoolHolidays,

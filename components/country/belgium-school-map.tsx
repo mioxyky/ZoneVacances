@@ -32,9 +32,9 @@ type BelgiumMapPayload = {
 const typedBelgiumMap = belgiumMap as BelgiumMapPayload;
 
 const BELGIUM_COMMUNITY_FILL_BY_CODE: Record<BelgiumCommunityCode, string> = {
-  "BE-DE": "rgba(250, 204, 21, 0.18)",
-  "BE-FR": "rgba(20, 184, 166, 0.18)",
-  "BE-NL": "rgba(56, 189, 248, 0.18)",
+  "BE-DE": "var(--community-be-de)",
+  "BE-FR": "var(--community-be-fr)",
+  "BE-NL": "var(--community-be-nl)",
 };
 
 const BELGIUM_COMMUNITY_PATHS = typedBelgiumMap.municipalities.reduce<
@@ -53,9 +53,11 @@ const BELGIUM_COMMUNITY_PATHS = typedBelgiumMap.municipalities.reduce<
 
 export function BelgiumSchoolMap({
   ariaLabel,
+  selectedZoneIds,
   sticky = true,
 }: {
   ariaLabel: string;
+  selectedZoneIds?: string[];
   sticky?: boolean;
 }) {
   return (
@@ -77,10 +79,11 @@ export function BelgiumSchoolMap({
         {(Object.entries(BELGIUM_COMMUNITY_PATHS) as Array<[BelgiumCommunityCode, string]>).map(
           ([communityCode, path]) => (
           <path
-            className="belgium-school-map__province-fill"
+            className={`belgium-school-map__province-fill${selectedZoneIds !== undefined && !selectedZoneIds.includes(communityCode) ? " is-muted" : ""}`}
             d={path.trim()}
             fill={BELGIUM_COMMUNITY_FILL_BY_CODE[communityCode]}
             key={communityCode}
+            fillOpacity={0.78}
             vectorEffect="non-scaling-stroke"
           />
           ),

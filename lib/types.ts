@@ -5,13 +5,7 @@ export type ZoneId = "A" | "B" | "C";
 export type RegionTone = ZoneId | "SPECIAL";
 export type CountdownMode = "untilStart" | "untilEnd";
 export type CountdownStatusTone = "current" | "past" | "upcoming";
-export type SearchSuggestionType = "commune" | "departement" | "region";
 export type CountryZoneMatchType = "group" | "national" | "subdivision";
-export type SearchZoneKey =
-  | RegionTone
-  | "BE-FR"
-  | "BE-NL"
-  | "BE-DE";
 
 export interface LocalizedText {
   language: string;
@@ -80,28 +74,30 @@ export interface CountdownItem {
   statusTone: CountdownStatusTone;
 }
 
+export interface CalendarVacationData {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  zoneId: string;
+  zoneLabel: string;
+  zoneShortLabel: string;
+  color: string;
+}
+
+export interface CalendarPublicHolidayData {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  countryCode: CountryIsoCode;
+  countryLabel: string;
+}
+
 export interface PublicHolidayData extends CountdownItem {
   description?: string;
   nationwide: boolean;
   regionalScope: string;
-}
-
-export interface SearchSuggestion {
-  country: CountrySlug;
-  id: string;
-  label: string;
-  type: SearchSuggestionType;
-  zone: SearchZoneKey;
-  zoneLabel: string;
-  zoneColor: string;
-  regionCode: string;
-  regionName: string;
-  detail: string;
-}
-
-export interface SearchApiResponse {
-  query: string;
-  suggestions: SearchSuggestion[];
 }
 
 export interface LocaleLabelMap {
@@ -147,6 +143,8 @@ export interface CountryPageData {
   country: CountryDefinition;
   generatedAt: string;
   nextVacations: CountryZoneCountdownData[];
+  calendarVacations: CalendarVacationData[];
+  calendarPublicHolidays: CalendarPublicHolidayData[];
   remainingVacations: RemainingVacationData[];
   publicHolidays: PublicHolidayData[];
   warnings: string[];

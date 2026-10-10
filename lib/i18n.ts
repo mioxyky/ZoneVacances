@@ -6,11 +6,35 @@ type Dictionary = {
     availableCountries: string;
     closeMenu: string;
     countries: string;
-    home: string;
     language: string;
     openMenu: string;
     primaryNavigation: string;
     selectLanguage: string;
+    switchToDarkTheme: string;
+    switchToLightTheme: string;
+  };
+  calendar: {
+    filter: string;
+    title: string;
+    year: string;
+    maps: string;
+    communityFrance: string;
+    communityFlemish: string;
+    communityGerman: string;
+    locate: string;
+    locating: string;
+    locationUnavailable: string;
+    locationDetected: string;
+    openMaps: string;
+    closeMaps: string;
+    previousYear: string;
+    nextYear: string;
+    empty: string;
+    noneSelected: string;
+    publicHolidayFrance: string;
+    publicHolidayBelgium: string;
+    france: string;
+    belgium: string;
   };
   home: {
     helper: string;
@@ -31,6 +55,7 @@ type Dictionary = {
   };
   countryPage: {
     belgiumMapLabel: string;
+    details: string;
     franceMapLabel: string;
     nextVacations: string;
     noPublicHolidays: string;
@@ -85,7 +110,6 @@ type Dictionary = {
   common: {
     holiday: string;
     noData: string;
-    search: string;
     unavailable: string;
   };
 };
@@ -97,11 +121,35 @@ const DICTIONARIES: Record<AppLocale, Dictionary> = {
       availableCountries: "Available countries",
       closeMenu: "Close menu",
       countries: "Countries",
-      home: "Home",
       language: "Language",
       openMenu: "Open menu",
       primaryNavigation: "Primary navigation",
       selectLanguage: "Choose language",
+      switchToDarkTheme: "Switch to dark theme",
+      switchToLightTheme: "Switch to light theme",
+    },
+    calendar: {
+      filter: "Filters",
+      title: "School holidays",
+      year: "Year",
+      maps: "Maps",
+      communityFrance: "French Community",
+      communityFlemish: "Flemish Community",
+      communityGerman: "German-speaking Community",
+      locate: "Use my location",
+      locating: "Locating…",
+      locationUnavailable: "Your area could not be identified from this location.",
+      locationDetected: "Detected {zone}; its calendar is selected.",
+      openMaps: "Open map menu",
+      closeMaps: "Close map menu",
+      previousYear: "Previous year",
+      nextYear: "Next year",
+      empty: "No school holiday dates are available for this year.",
+      noneSelected: "Select a calendar to show its holidays.",
+      publicHolidayFrance: "FR public holidays",
+      publicHolidayBelgium: "BE public holidays",
+      france: "France",
+      belgium: "Belgium",
     },
     home: {
       helper: "Choose France or Belgium on the map to open the school holiday dashboard.",
@@ -122,6 +170,7 @@ const DICTIONARIES: Record<AppLocale, Dictionary> = {
     },
     countryPage: {
       belgiumMapLabel: "Detailed map of Belgium by school districts and provinces",
+      details: "More details",
       franceMapLabel: "Detailed map of France by school regions",
       nextVacations: "Next school breaks",
       noPublicHolidays: "No upcoming public holidays right now.",
@@ -181,7 +230,6 @@ const DICTIONARIES: Record<AppLocale, Dictionary> = {
     common: {
       holiday: "Public holiday",
       noData: "No data",
-      search: "Search",
       unavailable: "Temporarily unavailable",
     },
   },
@@ -191,11 +239,35 @@ const DICTIONARIES: Record<AppLocale, Dictionary> = {
       availableCountries: "Pays disponibles",
       closeMenu: "Fermer le menu",
       countries: "Pays",
-      home: "Accueil",
       language: "Langue",
       openMenu: "Ouvrir le menu",
       primaryNavigation: "Navigation principale",
       selectLanguage: "Choisir la langue",
+      switchToDarkTheme: "Passer au thème sombre",
+      switchToLightTheme: "Passer au thème clair",
+    },
+    calendar: {
+      filter: "Filtre",
+      title: "Vacances scolaires",
+      year: "Année",
+      maps: "Cartes",
+      communityFrance: "Fédération Wallonie-Bruxelles",
+      communityFlemish: "Communauté flamande",
+      communityGerman: "Communauté germanophone",
+      locate: "Me géolocaliser",
+      locating: "Localisation…",
+      locationUnavailable: "Impossible de déterminer ta zone avec cette position.",
+      locationDetected: "Zone détectée : {zone}. Son calendrier est sélectionné.",
+      openMaps: "Ouvrir le menu des cartes",
+      closeMaps: "Fermer le menu des cartes",
+      previousYear: "Année précédente",
+      nextYear: "Année suivante",
+      empty: "Aucune date de vacances scolaires n’est disponible pour cette année.",
+      noneSelected: "Sélectionne un agenda pour afficher ses vacances.",
+      publicHolidayFrance: "Jours fériés FR",
+      publicHolidayBelgium: "Jours fériés BE",
+      france: "France",
+      belgium: "Belgique",
     },
     home: {
       helper: "Choisis la France ou la Belgique sur la carte pour ouvrir le tableau de bord des vacances.",
@@ -216,6 +288,7 @@ const DICTIONARIES: Record<AppLocale, Dictionary> = {
     },
     countryPage: {
       belgiumMapLabel: "Carte detaillee de la Belgique par arrondissements scolaires et provinces",
+      details: "Plus d'informations",
       franceMapLabel: "Carte detaillee de la France par regions scolaires",
       nextVacations: "Prochaines vacances",
       noPublicHolidays: "Aucun jour ferie a venir pour le moment.",
@@ -275,7 +348,6 @@ const DICTIONARIES: Record<AppLocale, Dictionary> = {
     common: {
       holiday: "Jour ferie",
       noData: "Aucune donnee",
-      search: "Recherche",
       unavailable: "Temporairement indisponible",
     },
   },
@@ -285,11 +357,35 @@ const DICTIONARIES: Record<AppLocale, Dictionary> = {
       availableCountries: "Dostepne kraje",
       closeMenu: "Zamknij menu",
       countries: "Kraje",
-      home: "Start",
       language: "Jezyk",
       openMenu: "Otworz menu",
       primaryNavigation: "Nawigacja glowna",
       selectLanguage: "Wybierz jezyk",
+      switchToDarkTheme: "Wlacz ciemny motyw",
+      switchToLightTheme: "Wlacz jasny motyw",
+    },
+    calendar: {
+      filter: "Filtry",
+      title: "Ferie szkolne",
+      year: "Rok",
+      maps: "Mapy",
+      communityFrance: "Wspólnota Francuska Belgii",
+      communityFlemish: "Wspólnota Flamandzka",
+      communityGerman: "Wspólnota Niemieckojęzyczna",
+      locate: "Użyj mojej lokalizacji",
+      locating: "Lokalizowanie…",
+      locationUnavailable: "Nie udało się ustalić regionu na podstawie tej lokalizacji.",
+      locationDetected: "Wykryto {zone}. Ten kalendarz został wybrany.",
+      openMaps: "Otworz menu map",
+      closeMaps: "Zamknij menu map",
+      previousYear: "Poprzedni rok",
+      nextYear: "Następny rok",
+      empty: "Brak dostepnych terminow ferii szkolnych w tym roku.",
+      noneSelected: "Wybierz kalendarz, aby wyświetlić ferie.",
+      publicHolidayFrance: "Święta FR",
+      publicHolidayBelgium: "Święta BE",
+      france: "Francja",
+      belgium: "Belgia",
     },
     home: {
       helper: "Wybierz Francje albo Belgie na mapie, aby otworzyc pulpit wakacji szkolnych.",
@@ -310,6 +406,7 @@ const DICTIONARIES: Record<AppLocale, Dictionary> = {
     },
     countryPage: {
       belgiumMapLabel: "Szczegolowa mapa Belgii wedlug okregow szkolnych i prowincji",
+      details: "Wiecej informacji",
       franceMapLabel: "Szczegolowa mapa Francji wedlug regionow szkolnych",
       nextVacations: "Najblizsze ferie",
       noPublicHolidays: "Brak nadchodzacych swiat panstwowych.",
@@ -369,7 +466,6 @@ const DICTIONARIES: Record<AppLocale, Dictionary> = {
     common: {
       holiday: "Swieto",
       noData: "Brak danych",
-      search: "Szukaj",
       unavailable: "Tymczasowo niedostepne",
     },
   },

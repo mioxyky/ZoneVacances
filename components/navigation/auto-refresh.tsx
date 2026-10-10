@@ -7,9 +7,7 @@ import { SUPPORTED_LOCALES } from "@/lib/locale";
 
 const localePattern = `(?:${SUPPORTED_LOCALES.join("|")})`;
 
-const REFRESHABLE_PATHS = [
-  new RegExp(`^/${localePattern}/(?:france|belgium)$`),
-];
+const REFRESHABLE_PATHS = [new RegExp(`^/${localePattern}$`)];
 
 export function AutoRefresh() {
   const pathname = usePathname();

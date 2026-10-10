@@ -18,31 +18,43 @@ export const env = {
     return readRequiredEnvValue("BELGIUM_ADDRESS_API_BASE_URL");
   },
   get belgiumAddressApiSourceUrl() {
-    return readRequiredEnvValue("BELGIUM_ADDRESS_API_SOURCE_URL");
+    return readOptionalEnvValue("BELGIUM_ADDRESS_API_SOURCE_URL", "");
   },
   get francePublicHolidaysBaseUrl() {
-    return readRequiredEnvValue("FRANCE_PUBLIC_HOLIDAYS_BASE_URL");
+    return readOptionalEnvValue(
+      "FRANCE_PUBLIC_HOLIDAYS_BASE_URL",
+      "https://calendrier.api.gouv.fr/jours-feries",
+    );
   },
   get franceSchoolCalendarIcsBaseUrl() {
-    return readRequiredEnvValue("FRANCE_SCHOOL_CALENDAR_ICS_BASE_URL");
+    return readOptionalEnvValue(
+      "FRANCE_SCHOOL_CALENDAR_ICS_BASE_URL",
+      "https://fr.ftp.opendatasoft.com/openscol/fr-en-calendrier-scolaire",
+    );
   },
   get franceSchoolCalendarSourceUrl() {
-    return readRequiredEnvValue("FRANCE_SCHOOL_CALENDAR_SOURCE_URL");
+    return readOptionalEnvValue(
+      "FRANCE_SCHOOL_CALENDAR_SOURCE_URL",
+      "https://data.education.gouv.fr/explore/dataset/fr-en-calendrier-scolaire/",
+    );
   },
   get francePublicHolidaysSourceUrl() {
-    return readRequiredEnvValue("FRANCE_PUBLIC_HOLIDAYS_SOURCE_URL");
+    return readOptionalEnvValue(
+      "FRANCE_PUBLIC_HOLIDAYS_SOURCE_URL",
+      "https://calendrier.api.gouv.fr/",
+    );
   },
   get geoApiBaseUrl() {
-    return readRequiredEnvValue("GEO_API_BASE_URL");
+    return readOptionalEnvValue("GEO_API_BASE_URL", "https://geo.api.gouv.fr");
   },
   get geoApiSourceUrl() {
-    return readRequiredEnvValue("GEO_API_SOURCE_URL");
+    return readOptionalEnvValue("GEO_API_SOURCE_URL", "https://geo.api.gouv.fr/");
   },
   get openHolidaysBaseUrl() {
-    return readRequiredEnvValue("OPEN_HOLIDAYS_BASE_URL");
+    return readOptionalEnvValue("OPEN_HOLIDAYS_BASE_URL", "https://openholidaysapi.org");
   },
   get openHolidaysSourceUrl() {
-    return readRequiredEnvValue("OPEN_HOLIDAYS_SOURCE_URL");
+    return readOptionalEnvValue("OPEN_HOLIDAYS_SOURCE_URL", "https://www.openholidaysapi.org/en/");
   },
   get siteName() {
     return readOptionalEnvValue("NEXT_PUBLIC_SITE_NAME", "ZoneVacances");

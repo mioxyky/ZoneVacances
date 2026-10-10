@@ -34,10 +34,10 @@ const REGION_TONE_BY_MAP_ID: Record<string, RegionTone> = {
 };
 
 const MAP_FILL_BY_TONE: Record<RegionTone, string> = {
-  A: "rgba(239, 68, 68, 0.11)",
-  B: "rgba(59, 130, 246, 0.12)",
-  C: "rgba(245, 158, 11, 0.11)",
-  SPECIAL: "rgba(125, 133, 151, 0.08)",
+  A: "var(--zone-fr-a)",
+  B: "var(--zone-fr-b)",
+  C: "var(--zone-fr-c)",
+  SPECIAL: "var(--zone-fr-special)",
 };
 
 const metropolitanDepartments = typedFranceDepartmentsMap.locations.filter((department) =>
@@ -46,9 +46,11 @@ const metropolitanDepartments = typedFranceDepartmentsMap.locations.filter((depa
 
 export function FranceSchoolMap({
   ariaLabel,
+  selectedZoneIds,
   sticky = true,
 }: {
   ariaLabel: string;
+  selectedZoneIds?: string[];
   sticky?: boolean;
 }) {
   return (
@@ -63,13 +65,16 @@ export function FranceSchoolMap({
 
         {typedFranceRegionsMap.locations.map((region) => {
           const tone = REGION_TONE_BY_MAP_ID[region.id] ?? "SPECIAL";
+          const isSelected = tone !== "SPECIAL" && selectedZoneIds?.includes(`FR-Z${tone}`);
+          const isMuted = selectedZoneIds !== undefined && !isSelected && tone !== "SPECIAL";
 
           return (
             <path
-              className="france-map__region-fill"
+              className={`france-map__region-fill${isMuted ? " is-muted" : ""}`}
               d={region.path}
               fill={MAP_FILL_BY_TONE[tone]}
               key={region.id}
+              fillOpacity={tone === "SPECIAL" ? 0.22 : undefined}
               vectorEffect="non-scaling-stroke"
             />
           );

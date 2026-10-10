@@ -1,4 +1,6 @@
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import { HomeDashboard } from "@/components/home/home-dashboard";
+import { getCountryPageData } from "@/lib/dashboard-data";
 import { isLocale } from "@/lib/locale";
 
 export default async function LocaleIndexPage({
@@ -9,8 +11,13 @@ export default async function LocaleIndexPage({
   const { locale } = await params;
 
   if (!isLocale(locale)) {
-    redirect("/fr/home");
+    notFound();
   }
 
-  redirect(`/${locale}/home`);
+  const [france, belgium] = await Promise.all([
+    getCountryPageData("france", locale),
+    getCountryPageData("belgium", locale),
+  ]);
+
+  return <HomeDashboard belgium={belgium} france={france} locale={locale} />;
 }

@@ -15,8 +15,8 @@ export const FRANCE_ZONE_DEFINITIONS: ZoneDefinition[] = [
     zone: "A",
     code: "FR-ZA",
     label: "Zone A",
-    color: "#3b82f6",
-    glow: "rgba(59, 130, 246, 0.28)",
+    color: "var(--zone-fr-a)",
+    glow: "var(--zone-fr-a-glow)",
     academies: [
       "Besancon",
       "Bordeaux",
@@ -37,8 +37,8 @@ export const FRANCE_ZONE_DEFINITIONS: ZoneDefinition[] = [
     zone: "B",
     code: "FR-ZB",
     label: "Zone B",
-    color: "#ef4444",
-    glow: "rgba(239, 68, 68, 0.28)",
+    color: "var(--zone-fr-b)",
+    glow: "var(--zone-fr-b-glow)",
     academies: [
       "Aix-Marseille",
       "Amiens",
@@ -66,8 +66,8 @@ export const FRANCE_ZONE_DEFINITIONS: ZoneDefinition[] = [
     zone: "C",
     code: "FR-ZC",
     label: "Zone C",
-    color: "#f59e0b",
-    glow: "rgba(245, 158, 11, 0.28)",
+    color: "var(--zone-fr-c)",
+    glow: "var(--zone-fr-c-glow)",
     academies: ["Creteil", "Montpellier", "Paris", "Toulouse", "Versailles"],
     regions: ["Ile-de-France", "Occitanie"],
   },
@@ -78,30 +78,30 @@ export const BELGIUM_COMMUNITIES: BelgiumCommunityDefinition[] = [
     code: "BE-FR",
     label: "Communaute francaise",
     shortLabel: "Belgique FR",
-    color: "#14b8a6",
-    glow: "rgba(20, 184, 166, 0.22)",
+    color: "var(--community-be-fr)",
+    glow: "var(--community-be-fr-glow)",
   },
   {
     code: "BE-NL",
     label: "Communaute flamande",
     shortLabel: "Belgique NL",
-    color: "#38bdf8",
-    glow: "rgba(56, 189, 248, 0.22)",
+    color: "var(--community-be-nl)",
+    glow: "var(--community-be-nl-glow)",
   },
   {
     code: "BE-DE",
     label: "Communaute germanophone",
     shortLabel: "Belgique DE",
-    color: "#eab308",
-    glow: "rgba(234, 179, 8, 0.22)",
+    color: "var(--community-be-de)",
+    glow: "var(--community-be-de-glow)",
   },
 ];
 
 export const REGION_ZONE_COLORS: Record<string, string> = {
-  A: "#3b82f6",
-  B: "#ef4444",
-  C: "#f59e0b",
-  SPECIAL: "#6b7280",
+  A: "var(--zone-fr-a)",
+  B: "var(--zone-fr-b)",
+  C: "var(--zone-fr-c)",
+  SPECIAL: "var(--zone-fr-special)",
 };
 
 export const REGION_ZONE_LABELS: Record<string, string> = {

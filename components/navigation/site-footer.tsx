@@ -32,7 +32,7 @@ const RESOURCE_LINKS = [
  ] as const;
 
 export function SiteFooter({ labels, locale }: SiteFooterProps) {
-  const homeHref = `/${locale}/home` as Route;
+  const homeHref = `/${locale}` as Route;
   const legalHref = `/${locale}/legal` as Route;
   const policyHref = `/${locale}/policy` as Route;
   const apiLinks = [
@@ -65,7 +65,7 @@ export function SiteFooter({ labels, locale }: SiteFooterProps) {
           <div className="site-footer__group">
             <p className="page-footer__label">{labels.api}</p>
             <div className="site-footer__links">
-              {apiLinks.map((link) => (
+              {apiLinks.filter((link) => link.href.length > 0).map((link) => (
                 <a
                   className="footer-link"
                   href={link.href}

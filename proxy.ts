@@ -4,20 +4,24 @@ import {
   LOCALE_COOKIE_NAME,
   SUPPORTED_LOCALES,
   resolvePreferredLocale,
-  withLocale,
 } from "@/lib/locale";
 
 const LEGACY_ROUTE_MAP: Record<string, string> = {
-  "/belgique": "/belgium",
-  "/countries/belgium": "/belgium",
-  "/countries/france": "/france",
-  "/france": "/france",
-  "/recherche": "/search",
+  "/belgique": "/",
+  "/belgium": "/",
+  "/countries/belgium": "/",
+  "/countries/france": "/",
+  "/france": "/",
+  "/recherche": "/",
+  "/search": "/",
 };
 
-const LOCALE_PATTERN = new RegExp(`^\\/(${SUPPORTED_LOCALES.join("|")})$`);
-const LOCALIZED_LEGACY_COUNTRY_PATTERN = new RegExp(
-  `^\\/(${SUPPORTED_LOCALES.join("|")})\\/countries\\/(france|belgium)$`,
+const LOCALIZED_LEGACY_ROUTE_PATTERN = new RegExp(
+  `^\\/(${SUPPORTED_LOCALES.join("|")})\\/(?:(?:countries\\/)?(?:france|belgium)|search|recherche)$`,
+);
+const LOCALIZED_HOME_ROUTE_PATTERN = new RegExp(
+  `^\\/(${SUPPORTED_LOCALES.join("|")})\\/home\\/?$`,
+  "i",
 );
 
 function shouldBypass(pathname: string) {
@@ -42,7 +46,7 @@ export function proxy(request: NextRequest) {
 
   if (pathname === "/") {
     return NextResponse.redirect(
-      new URL(`/${preferredLocale}/home${search}`, request.url),
+      new URL(`/${preferredLocale}${search}`, request.url),
     );
   }
 
@@ -50,19 +54,22 @@ export function proxy(request: NextRequest) {
 
   if (matchedLegacyPath) {
     return NextResponse.redirect(
-      new URL(withLocale(preferredLocale, `${matchedLegacyPath}${search}`), request.url),
+      new URL(`/${preferredLocale}${search}`, request.url),
     );
   }
 
-  const localizedLegacyCountryMatch = pathname.match(LOCALIZED_LEGACY_COUNTRY_PATTERN);
+  const localizedLegacyRouteMatch = pathname.match(LOCALIZED_LEGACY_ROUTE_PATTERN);
 
-  if (localizedLegacyCountryMatch) {
-    const [, locale, country] = localizedLegacyCountryMatch;
-    return NextResponse.redirect(new URL(`/${locale}/${country}${search}`, request.url));
+  if (localizedLegacyRouteMatch) {
+    const [, locale] = localizedLegacyRouteMatch;
+    return NextResponse.redirect(new URL(`/${locale}${search}`, request.url));
   }
 
-  if (LOCALE_PATTERN.test(pathname)) {
-    return NextResponse.redirect(new URL(`${pathname}/home${search}`, request.url));
+  const localizedHomeRouteMatch = pathname.match(LOCALIZED_HOME_ROUTE_PATTERN);
+
+  if (localizedHomeRouteMatch) {
+    const [, locale] = localizedHomeRouteMatch;
+    return NextResponse.redirect(new URL(`/${locale}${search}`, request.url));
   }
 
   return NextResponse.next();

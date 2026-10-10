@@ -4,26 +4,23 @@ import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useCalendarYear } from "@/components/calendar/calendar-year-context";
 import { BrandLogo } from "@/components/navigation/brand-logo";
-import { getLanguageNativeLabel } from "@/lib/i18n";
+import { getDictionary, getLanguageNativeLabel } from "@/lib/i18n";
 import { LOCALE_COOKIE_NAME, SUPPORTED_LOCALES, replaceLocaleInPath } from "@/lib/locale";
-import type { AppLocale, CountrySlug } from "@/lib/types";
+import type { AppLocale } from "@/lib/types";
 
 type SiteHeaderProps = {
-  countries: Array<{
-    label: string;
-    slug: CountrySlug;
-  }>;
   labels: {
     closeMenu: string;
-    home: string;
     language: string;
     openMenu: string;
     primaryNavigation: string;
     selectLanguage: string;
+    switchToDarkTheme: string;
+    switchToLightTheme: string;
   };
   locale: AppLocale;
-  searchLabel: string;
 };
 
 function GlobeIcon() {
@@ -85,121 +82,99 @@ function BurgerIcon({ open }: { open: boolean }) {
   );
 }
 
-function HomeIcon() {
-  return (
-    <svg aria-hidden="true" className="site-link__icon" viewBox="0 0 24 24">
-      <path
-        d="M4 10.5L12 4L20 10.5M6.5 9.5V19H17.5V9.5"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.7"
-      />
-    </svg>
-  );
-}
-
-function SearchIcon() {
-  return (
-    <svg aria-hidden="true" className="site-link__icon" viewBox="0 0 24 24">
-      <circle cx="11" cy="11" fill="none" r="6.5" stroke="currentColor" strokeWidth="1.8" />
-      <path
-        d="M16 16L21 21"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="1.8"
-      />
-    </svg>
-  );
-}
-
-function FranceIcon() {
-  return (
-    <svg aria-hidden="true" className="site-link__icon" viewBox="0 0 24 24">
-      <path
-        d="M4.4 15.2C4.9 13.9 6.4 12.2 8.8 10.4C11.3 8.6 14.6 7 18.2 5.9C19.3 6.5 19.9 7.5 19.7 8.6C18.9 10.2 17.2 12 14.6 13.9C12 15.8 9.2 17.2 6.5 18C5.5 17.5 4.8 16.5 4.4 15.2Z"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M8 14.8L9.3 16.1M10.8 12.8L12.1 14.1M13.5 10.8L14.8 12.1M16.2 8.8L17.4 10"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="1.3"
-      />
-    </svg>
-  );
-}
-
-function BelgiumIcon() {
-  return (
-    <svg aria-hidden="true" className="site-link__icon" viewBox="0 0 24 24">
-      <path
-        d="M7 9.2H17L16 19H8L7 9.2Z"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M7.6 9.2L6.4 6.7M9.8 9.2L9.1 5.9M12.2 9.2V5.3M14.7 9.2L15.4 5.9M17 9.2L18.4 6.8"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="1.35"
-      />
-      <path
-        d="M8 11.8C9.3 12.7 10.5 13.1 12 13.1C13.5 13.1 14.7 12.7 16 11.8"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="1.2"
-      />
-    </svg>
-  );
-}
-
-function getLinkIcon(label: string, href: Route) {
-  if (href.includes("/home")) {
-    return <HomeIcon />;
-  }
-
-  if (href.includes("/search")) {
-    return <SearchIcon />;
-  }
-
-  if (href.includes("/france")) {
-    return <FranceIcon />;
-  }
-
-  if (href.includes("/belgium")) {
-    return <BelgiumIcon />;
-  }
-
-  return null;
-}
-
 function setPreferredLocale(locale: AppLocale) {
   document.cookie = `${LOCALE_COOKIE_NAME}=${locale}; path=/; max-age=31536000; samesite=lax`;
 }
 
-export function SiteHeader({ countries, labels, locale, searchLabel }: SiteHeaderProps) {
+function CalendarYearControl({
+  currentYear,
+  selectedYear,
+  labels,
+  onChange,
+}: {
+  currentYear: number;
+  selectedYear: number;
+  labels: { year: string; previousYear: string; nextYear: string };
+  onChange: (year: number) => void;
+}) {
+  const availableYears = Array.from({ length: 5 }, (_, offset) => currentYear - 2 + offset);
+  const yearIndex = availableYears.indexOf(selectedYear);
+
+  return (
+    <div className="calendar-year-control">
+      <button
+        aria-label={`${labels.previousYear} ${selectedYear - 1}`}
+        className="calendar-year-control__arrow"
+        disabled={yearIndex <= 0}
+        onClick={() => onChange(selectedYear - 1)}
+        type="button"
+      >
+        ‹
+      </button>
+      <label className="calendar-year-control__select" htmlFor="calendar-year">
+        <span className="visually-hidden">{labels.year}</span>
+        <select id="calendar-year" onChange={(event) => onChange(Number(event.currentTarget.value))} value={selectedYear}>
+          {availableYears.map((year) => <option key={year} value={year}>{year}</option>)}
+        </select>
+      </label>
+      <button
+        aria-label={`${labels.nextYear} ${selectedYear + 1}`}
+        className="calendar-year-control__arrow"
+        disabled={yearIndex === availableYears.length - 1}
+        onClick={() => onChange(selectedYear + 1)}
+        type="button"
+      >
+        ›
+      </button>
+    </div>
+  );
+}
+
+export function SiteHeader({ labels, locale }: SiteHeaderProps) {
   const pathname = usePathname();
   const navRef = useRef<HTMLElement | null>(null);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const homeHref = `/${locale}/home` as Route;
-  const searchHref = `/${locale}/search` as Route;
+  const [isDarkTheme, setIsDarkTheme] = useState(true);
+  const {
+    currentYear,
+    selectedYear,
+    setSelectedYear,
+    isMobileMenuOpen,
+    setIsMobileMenuOpen,
+    setMobileDrawerContentTarget,
+  } = useCalendarYear();
+  const calendarLabels = getDictionary(locale).calendar;
+  const homeHref = `/${locale}` as Route;
   const isHomeActive = pathname === `/${locale}` || pathname === `/${locale}/home`;
-  const isSearchActive = pathname.startsWith(`/${locale}/search`);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const syncTheme = () => {
+      const savedTheme = document.documentElement.dataset.theme;
+      setIsDarkTheme(savedTheme ? savedTheme === "dark" : media.matches);
+    };
+    const syncSystemTheme = (event: MediaQueryListEvent) => {
+      const hasManualPreference = document.cookie
+        .split(";")
+        .some((part) => part.trim().startsWith("zonevacances-theme="));
+
+      if (!hasManualPreference) {
+        setIsDarkTheme(event.matches);
+      }
+    };
+
+    syncTheme();
+    media.addEventListener("change", syncSystemTheme);
+    return () => media.removeEventListener("change", syncSystemTheme);
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = isDarkTheme ? "light" : "dark";
+    document.documentElement.dataset.theme = nextTheme;
+    document.cookie = `zonevacances-theme=${nextTheme}; path=/; max-age=31536000; samesite=lax`;
+    setIsDarkTheme(nextTheme === "dark");
+  };
 
   const clearCloseTimeout = () => {
     if (closeTimeoutRef.current !== null) {
@@ -258,31 +233,13 @@ export function SiteHeader({ countries, labels, locale, searchLabel }: SiteHeade
     };
   }, [isMobileMenuOpen]);
 
-  const primaryLinks = [
-    {
-      active: isHomeActive,
-      href: homeHref,
-      label: labels.home,
-    },
-    {
-      active: isSearchActive,
-      href: searchHref,
-      label: searchLabel,
-    },
-    ...countries.map((country) => ({
-      active: pathname === `/${locale}/${country.slug}`,
-      href: `/${locale}/${country.slug}` as Route,
-      label: country.label,
-    })),
-  ];
-
   return (
     <header className="site-header">
       <div className="site-header__inner">
         <div className="site-header__mobile">
           <button
             aria-expanded={isMobileMenuOpen}
-            aria-label={labels.openMenu}
+            aria-label={isMobileMenuOpen ? labels.closeMenu : labels.openMenu}
             className="site-burger"
             onClick={() => {
               setIsMobileMenuOpen((current) => !current);
@@ -310,21 +267,16 @@ export function SiteHeader({ countries, labels, locale, searchLabel }: SiteHeade
           </span>
         </Link>
 
-        <nav aria-label={labels.primaryNavigation} className="site-nav" ref={navRef}>
-          {primaryLinks.map((link) => (
-            <Link
-              aria-current={link.active ? "page" : undefined}
-              className={`site-nav__link${link.active ? " is-active" : ""}`}
-              href={link.href}
-              key={link.href}
-            >
-              <span className="site-link__content">
-                {getLinkIcon(link.label, link.href)}
-                <span>{link.label}</span>
-              </span>
-            </Link>
-          ))}
+        {isHomeActive ? (
+          <CalendarYearControl
+            currentYear={currentYear}
+            labels={calendarLabels}
+            onChange={setSelectedYear}
+            selectedYear={selectedYear}
+          />
+        ) : null}
 
+        <nav aria-label={labels.primaryNavigation} className="site-nav" ref={navRef}>
           <div
             className={`site-menu${isLanguageMenuOpen ? " is-open" : ""}`}
             onBlur={(event) => {
@@ -385,6 +337,43 @@ export function SiteHeader({ countries, labels, locale, searchLabel }: SiteHeade
             </div>
           </div>
         </nav>
+
+        <button
+          aria-label={isDarkTheme ? labels.switchToLightTheme : labels.switchToDarkTheme}
+          className="theme-toggle"
+          onClick={toggleTheme}
+          title={isDarkTheme ? labels.switchToLightTheme : labels.switchToDarkTheme}
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            className="theme-toggle__icon theme-toggle__icon--sun"
+            viewBox="0 0 24 24"
+          >
+            <circle cx="12" cy="12" r="3.6" fill="none" stroke="currentColor" strokeWidth="1.7" />
+            <path
+              d="M12 2.5v2.1M12 19.4v2.1M4.5 4.5L6 6m12 12 1.5 1.5M2.5 12h2.1m14.8 0h2.1M4.5 19.5 6 18m12-12 1.5-1.5"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeWidth="1.7"
+            />
+          </svg>
+          <svg
+            aria-hidden="true"
+            className="theme-toggle__icon theme-toggle__icon--moon"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M20.1 15.1A8.2 8.2 0 0 1 8.9 3.9 8.4 8.4 0 1 0 20.1 15.1Z"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.7"
+            />
+          </svg>
+        </button>
       </div>
 
       <div
@@ -410,24 +399,7 @@ export function SiteHeader({ countries, labels, locale, searchLabel }: SiteHeade
           </button>
         </div>
 
-        <div className="mobile-drawer__section">
-          {primaryLinks.map((link) => (
-            <Link
-              aria-current={link.active ? "page" : undefined}
-              className={`mobile-drawer__link${link.active ? " is-active" : ""}`}
-              href={link.href}
-              key={`mobile-${link.href}`}
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-              }}
-            >
-              <span className="site-link__content">
-                {getLinkIcon(link.label, link.href)}
-                <span>{link.label}</span>
-              </span>
-            </Link>
-          ))}
-        </div>
+        <div className="mobile-drawer__dashboard-content" ref={setMobileDrawerContentTarget} />
 
         <div className="mobile-drawer__section">
           <p className="mobile-drawer__label">{labels.selectLanguage}</p>
